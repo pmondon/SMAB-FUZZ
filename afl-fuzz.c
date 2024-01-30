@@ -550,8 +550,18 @@ static void bind_to_free_cpu(void) {
   CPU_ZERO(&c);
   CPU_SET(i, &c);
 
-  if (sched_setaffinity(0, sizeof(c), &c))
-    PFATAL("sched_setaffinity failed");
+  while (sched_setaffinity(0, sizeof(c), &c)){
+    i = i + 1;
+    cpu_aff = i;
+
+    if(i >= cpu_core_count)
+      FATAL("No more cores - Number of Cores : %u ", cpu_core_count);
+
+    CPU_ZERO(&c);
+    CPU_SET(i, &c);
+    OKF("trying to bind to #%u", i);
+  }
+
 
 }
 
